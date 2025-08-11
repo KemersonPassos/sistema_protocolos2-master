@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from django.db.models import Case, When # <-- Linha adicionada ou modificada
+from django.db.models import Case, When
 from .models import Cliente, Protocolo, Atualizacao
 
 # Customização do Admin de Usuários
@@ -38,15 +38,6 @@ class AtualizacaoInline(admin.TabularInline):
     fields = ('descricao', 'usuario', 'data_hora')
     readonly_fields = ('usuario', 'data_hora')
 
-    def get_formset(self, request, obj=None, **kwargs):
-        formset = super().get_formset(request, obj, **kwargs)
-        # Preenche automaticamente o usuário logado
-        formset.form.base_fields['usuario'].initial = request.user
-        formset.form.base_fields['usuario'].widget.can_add_related = False
-        formset.form.base_fields['usuario'].widget.can_change_related = False
-        formset.form.base_fields['usuario'].widget.can_delete_related = False
-        return formset
-
 
 # Customização do Admin de Protocolos
 @admin.register(Protocolo)
@@ -58,7 +49,6 @@ class ProtocoloAdmin(admin.ModelAdmin):
     search_fields = ('numero__iexact', 'clientes__nome__icontains', 'descricao_problema__icontains')
     inlines = [AtualizacaoInline]
 
-    # V2: Método corrigido para ordenar usando o banco de dados
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.order_by(
@@ -75,8 +65,13 @@ class ProtocoloAdmin(admin.ModelAdmin):
             obj.usuario_criador = request.user
         super().save_model(request, obj, form, change)
 
-    # Botão customizado "Abrir Novo Protocolo" - será implementado na view
-    # e linkado aqui via admin/base_site.html ou um template customizado
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            if not instance.pk:  # Se for uma nova atualização
+                instance.usuario = request.user
+            instance.save()
+        formset.save_m2m()
 
 
 # Customização do Admin de Clientes
