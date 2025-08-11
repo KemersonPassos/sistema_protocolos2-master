@@ -34,9 +34,14 @@ admin.site.register(User, CustomUserAdmin)
 # Inline para Atualizações no Admin de Protocolos
 class AtualizacaoInline(admin.TabularInline):
     model = Atualizacao
-    extra = 0
+    extra = 1  # Permite adicionar uma atualização diretamente
     fields = ('descricao', 'usuario', 'data_hora')
     readonly_fields = ('usuario', 'data_hora')
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:  # Se for uma nova atualização
+            obj.usuario = request.user
+        super().save_model(request, obj, form, change)
 
 
 # Customização do Admin de Protocolos
@@ -48,6 +53,45 @@ class ProtocoloAdmin(admin.ModelAdmin):
     list_filter = ('status', 'data_criacao', 'usuario_criador')
     search_fields = ('numero__iexact', 'clientes__nome__icontains', 'descricao_problema__icontains')
     inlines = [AtualizacaoInline]
+    
+    # Campos organizados em fieldsets
+    fieldsets = (
+        ('Informações do Protocolo', {
+            'fields': ('numero_exibicao', 'clientes', 'buic_dispositivo', 'descricao_problema')
+        }),
+        ('Status e Controle', {
+            'fields': ('status', 'usuario_criador', 'data_criacao', 'data_finalizacao')
+        }),
+    )
+    
+    # Campos somente leitura
+    readonly_fields = ('numero_exibicao', 'usuario_criador', 'data_criacao', 'data_finalizacao')
+    
+    # Campos que aparecem ao criar um novo protocolo
+    add_fieldsets = (
+        ('Novo Protocolo', {
+            'fields': ('numero_exibicao', 'clientes', 'buic_dispositivo', 'descricao_problema')
+        }),
+    )
+
+    def get_fieldsets(self, request, obj=None):
+        if not obj:  # Criando um novo protocolo
+            return self.add_fieldsets
+        return super().get_fieldsets(request, obj)
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly = list(self.readonly_fields)
+        if not obj:  # Criando um novo protocolo
+            return ['numero_exibicao']
+        return readonly
+
+    def numero_exibicao(self, obj):
+        if obj and obj.numero:
+            return f"#{obj.numero}"
+        else:
+            # Para novos protocolos, mostra qual número será gerado
+            return f"#{Protocolo.get_proximo_numero()} (será gerado automaticamente)"
+    numero_exibicao.short_description = "Número do Protocolo"
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

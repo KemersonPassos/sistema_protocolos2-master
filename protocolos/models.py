@@ -24,7 +24,7 @@ class Protocolo(models.Model):
         ('finalizado', 'Finalizado'),
     ]
 
-    numero = models.IntegerField(unique=True)
+    numero = models.IntegerField(unique=True, blank=True, null=True)
     clientes = models.ManyToManyField(Cliente, related_name='protocolos')
     buic_dispositivo = models.CharField(max_length=255)
     descricao_problema = models.TextField()
@@ -33,14 +33,19 @@ class Protocolo(models.Model):
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_finalizacao = models.DateTimeField(null=True, blank=True)
 
+    @classmethod
+    def get_proximo_numero(cls):
+        """Retorna o próximo número de protocolo disponível"""
+        ultimo_protocolo = cls.objects.order_by('-numero').first()
+        if ultimo_protocolo and ultimo_protocolo.numero:
+            return ultimo_protocolo.numero + 1
+        else:
+            return 1000
+
     def save(self, *args, **kwargs):
         if not self.numero:
             # Gerar próximo número automaticamente
-            ultimo_protocolo = Protocolo.objects.order_by('-numero').first()
-            if ultimo_protocolo:
-                self.numero = ultimo_protocolo.numero + 1
-            else:
-                self.numero = 1000
+            self.numero = self.get_proximo_numero()
         
         # Se o status foi alterado para finalizado, definir data_finalizacao
         if self.status == 'finalizado' and not self.data_finalizacao:
