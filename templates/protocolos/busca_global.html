@@ -1,0 +1,40 @@
+{% extends 'protocolos/base.html' %}
+
+{% block title %}Resultados da Busca - Sistema de Protocolos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Resultados da Busca para "{{ query }}"</h1>
+
+    {% if resultados %}
+        {% for resultado in resultados %}
+            <div class="card mb-4">
+                <div class="card-header">{{ resultado.tipo }}</div>
+                <div class="card-body">
+                    {% if resultado.itens %}
+                        <ul class="list-group">
+                            {% for item in resultado.itens %}
+                                <li class="list-group-item">
+                                    {% if resultado.tipo == 'Protocolos' %}
+                                        <strong>Protocolo #{{ item.numero }}</strong>: {{ item.descricao_problema|truncatechars:100 }} (Status: {{ item.get_status_display }})
+                                    {% elif resultado.tipo == 'Clientes' %}
+                                        <strong>{{ item.nome }}</strong> ({{ item.email }})
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Nenhum resultado encontrado para {{ resultado.tipo }}.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Nenhum resultado encontrado para a sua busca.</p>
+    {% endif %}
+
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Voltar para o Dashboard</a>
+</div>
+{% endblock %}
+
+

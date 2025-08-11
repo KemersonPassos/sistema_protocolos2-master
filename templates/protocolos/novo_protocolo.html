@@ -1,0 +1,36 @@
+{% extends 'protocolos/base.html' %}
+
+{% block title %}Novo Protocolo - Sistema de Protocolos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Abrir Novo Protocolo</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_clientes" class="form-label">Clientes</label>
+                    {{ form.clientes }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_buic_dispositivo" class="form-label">BUIC do Dispositivo</label>
+                    {{ form.buic_dispositivo }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_descricao_problema" class="form-label">Descrição do Problema</label>
+                    {{ form.descricao_problema }}
+                </div>
+                <div class="mb-3">
+                    <label for="primeira_atualizacao" class="form-label">Primeira Atualização (Opcional)</label>
+                    <textarea name="primeira_atualizacao" id="primeira_atualizacao" class="form-control" rows="4" placeholder="Adicione a primeira atualização aqui (opcional)"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Protocolo</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

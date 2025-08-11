@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_("Django site admin") }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_("Django administration") }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}
+<a href="{% url 'dashboard' %}" class="btn btn-primary me-2">Dashboard</a>
+<a href="{% url 'novo_protocolo' %}" class="btn btn-success">Abrir Novo Protocolo</a>
+{{ block.super }}
+{% endblock %}
+
+

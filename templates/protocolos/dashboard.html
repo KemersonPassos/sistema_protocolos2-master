@@ -1,0 +1,95 @@
+{% extends 'protocolos/base.html' %}
+
+{% block title %}Dashboard - Sistema de Protocolos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Dashboard</h1>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total de Protocolos</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ total_protocolos }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Protocolos Abertos</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ protocolos_abertos }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Protocolos Em Andamento</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ protocolos_em_andamento }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Protocolos Finalizados</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ protocolos_finalizados }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">Últimos Protocolos Criados</div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Status</th>
+                                <th>Descrição</th>
+                                <th>Criado por</th>
+                                <th>Data de Criação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for protocolo in ultimos_protocolos %}
+                            <tr>
+                                <td>{{ protocolo.numero }}</td>
+                                <td>{{ protocolo.get_status_display }}</td>
+                                <td>{{ protocolo.descricao_problema|truncatechars:50 }}</td>
+                                <td>{{ protocolo.usuario_criador.username }}</td>
+                                <td>{{ protocolo.data_criacao|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">Nenhum protocolo encontrado.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos simples de status (placeholder) -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Gráfico de Status de Protocolos</div>
+                <div class="card-body">
+                    <p>Aqui será implementado um gráfico visual (ex: Chart.js) mostrando a distribuição dos status dos protocolos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+

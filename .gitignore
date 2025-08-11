@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Diretórios de ambiente virtual
+venv/
+env/
+.venv/
+.env/
+
+# Arquivos de banco de dados
+db.sqlite3
+
+# Diretórios de migrations (às vezes opcional, mas em geral versiona-se)
+*/migrations/
+
+# Arquivos de logs
+*.log
+
+# Arquivos de cache
+*.cache
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos do editor
+.vscode/
+.idea/
+
+# Arquivos estáticos coletados
+/staticfiles/
+
+# Arquivos de testes
+.coverage
+htmlcov/
+
+# Arquivos de configuração local
+local_settings.py
