@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from .models import Protocolo, Cliente, Atualizacao
 from .forms import ProtocoloForm
 import csv
 from django.http import HttpResponse
+import json
 
 @login_required
 def dashboard(request):
@@ -45,7 +48,55 @@ def novo_protocolo(request):
             return redirect("dashboard")
     else:
         form = ProtocoloForm()
-    return render(request, "protocolos/novo_protocolo.html", {"form": form})
+    
+    return render(request, "protocolos/novo_protocolo.html", {
+        "form": form,
+        "proximo_numero": Protocolo.get_proximo_numero()
+    })
+
+@login_required
+@require_POST
+def adicionar_cliente(request):
+    """Endpoint AJAX para adicionar novo cliente"""
+    try:
+        nome = request.POST.get('nome', '').strip()
+        email = request.POST.get('email', '').strip()
+        senha = request.POST.get('senha', '').strip()
+        
+        if not all([nome, email, senha]):
+            return JsonResponse({
+                'success': False,
+                'error': 'Todos os campos são obrigatórios'
+            })
+        
+        # Verificar se o email já existe
+        if Cliente.objects.filter(email=email).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'Já existe um cliente com este email'
+            })
+        
+        # Criar o cliente
+        cliente = Cliente.objects.create(
+            nome=nome,
+            email=email,
+            senha=senha  # Em produção, usar hash da senha
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'cliente': {
+                'id': cliente.id,
+                'nome': cliente.nome,
+                'email': cliente.email
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Erro interno: {str(e)}'
+        })
 
 @login_required
 def busca_global(request):
@@ -102,4 +153,3 @@ def exportar_protocolos_csv(request):
         ])
 
     return response
-
